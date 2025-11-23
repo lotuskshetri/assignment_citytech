@@ -2,28 +2,67 @@ import { useState } from 'react';
 import { FilterState, DEFAULT_FILTERS } from '../types/transaction';
 import { TransactionList } from '../components/common/TransactionList';
 import { TransactionSummary } from '../components/common/TransactionSummary';
+import { TransactionFilters } from '../components/transactions/TransactionFilters';
+import { Pagination } from '../components/transactions/Pagination';
 import { useTransactions } from '../hooks/useTransactions';
 
 /**
  * Transactions Page Component
- * Displays transaction dashboard with summary and list
+ * Displays transaction dashboard with summary, filters, and pagination
  */
 export const Transactions = () => {
-  const merchantId = import.meta.env.VITE_DEFAULT_MERCHANT_ID || 'MCH-00001';
-  const [filters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>({
+    ...DEFAULT_FILTERS,
+    merchantId: '', // Start with empty to show all transactions
+  });
 
-  const { data, loading, error } = useTransactions(merchantId, filters);
+  // Don't fallback - if merchantId is empty, pass null to fetch all transactions
+  const merchantId = filters.merchantId && filters.merchantId.trim() !== ''
+    ? filters.merchantId
+    : null;
+
+  const { data, loading, error } = useTransactions(merchantId as any, filters);
+
+  const handleFilterChange = (newFilters: Partial<FilterState>) => {
+    setFilters(prev => ({
+      ...prev,
+      ...newFilters,
+      page: 0, // Reset to first page when filters change
+    }));
+  };
+
+  const handlePageChange = (page: number) => {
+    setFilters(prev => ({ ...prev, page }));
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setFilters(prev => ({ ...prev, size, page: 0 }));
+  };
+
+  const totalPages = data ? Math.ceil(data.totalTransactions / filters.size) : 0;
 
   return (
     <main className="container">
-      <h1>Transaction Dashboard</h1>
-      <p className="subtitle">Merchant: {merchantId}</p>
+      <h1>💳 All Transactions</h1>
+      <p className="subtitle">
+        {merchantId
+          ? `Filtered by Merchant: ${merchantId}`
+          : 'Showing all merchants'}
+        {filters.status && ` • Status: ${filters.status}`}
+        {(filters.startDate || filters.endDate) && ` • Date: ${filters.startDate || 'earliest'} to ${filters.endDate || 'latest'}`}
+      </p>
 
-      {/* TODO: Add TransactionFilters component */}
+      {/* Transaction Filters */}
       <div className="filters-section">
-        <p style={{ padding: '1rem', background: '#fef3c7', borderRadius: '8px', color: '#92400e' }}>
-          🔧 TODO: Implement TransactionFilters component (date range, status filter)
-        </p>
+        <TransactionFilters
+          onFilterChange={handleFilterChange}
+          currentFilters={{
+            status: filters.status,
+            startDate: filters.startDate,
+            endDate: filters.endDate,
+            merchantId: filters.merchantId,
+          }}
+        />
       </div>
 
       {error && (
@@ -42,8 +81,9 @@ export const Transactions = () => {
         <>
           <div className="summary-section">
             <TransactionSummary 
-              transactions={data.transactions || []} 
+              transactions={data.transactions || []}
               totalTransactions={data.totalTransactions || 0}
+              summary={data.summary}
             />
           </div>
 
@@ -54,9 +94,16 @@ export const Transactions = () => {
             />
           </div>
 
-          {/* TODO: Add Pagination component */}
-          <div className="pagination-section" style={{ padding: '1rem', marginTop: '1rem', background: '#fef3c7', borderRadius: '8px', color: '#92400e' }}>
-            <p>🔧 TODO: Implement Pagination component (showing page {data.page + 1}, {data.totalTransactions} total transactions)</p>
+          {/* Pagination */}
+          <div className="pagination-section">
+            <Pagination
+              currentPage={filters.page}
+              totalPages={totalPages}
+              totalItems={data.totalTransactions}
+              itemsPerPage={filters.size}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+            />
           </div>
         </>
       )}

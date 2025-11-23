@@ -18,26 +18,45 @@ const MERCHANT_BASE = '/merchants';
  * @returns Promise with transaction response data
  */
 export const getTransactions = async (
-  merchantId: string,
+  merchantId: string | null | undefined,
   filters: FilterState
 ): Promise<TransactionResponse> => {
-  // TODO: Build query parameters
-  const params = {
+  // Use the new transaction-focused endpoint: GET /api/v1/transactions
+  // This endpoint supports filtering by merchantId, status, and date range with pagination
+
+  const params: any = {
     page: filters.page,
     size: filters.size,
     startDate: filters.startDate,
     endDate: filters.endDate,
-    ...(filters.status && { status: filters.status }),
   };
 
-  // TODO: Make API call
-  const url = `${MERCHANT_BASE}/${merchantId}/transactions`;
-  
+  // Add optional filters
+  if (merchantId && merchantId.trim() !== '') {
+    params.merchantId = merchantId;
+  }
+
+  if (filters.status) {
+    params.status = filters.status;
+  }
+
+  // Use the new transactions endpoint that supports all filters
+  const url = '/transactions';
+
+  console.log('Fetching transactions from:', url, 'with params:', params);
+
   try {
     const response = await get<TransactionResponse>(url, { params });
+    console.log('Transactions response:', {
+      total: response.totalTransactions,
+      page: response.page,
+      count: response.transactions?.length
+    });
+
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching transactions:', error);
+    console.error('Error response:', error.response?.data);
     throw error;
   }
 };
