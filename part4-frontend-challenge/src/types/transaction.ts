@@ -31,15 +31,21 @@ export interface TransactionSummary {
   };
 }
 
+export interface TransactionResponseSummary {
+  totalCount: number;
+  totalAmount: number;
+  completedCount: number;
+  pendingCount: number;
+  failedCount: number;
+}
+
 export interface TransactionResponse {
-  merchantId: string;
-  dateRange: {
-    start: string;
-    end: string;
-  };
-  summary: TransactionSummary;
   transactions: Transaction[];
-  pagination: PaginationInfo;
+  totalTransactions: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  summary?: TransactionResponseSummary; // Summary statistics across all filtered transactions
 }
 
 export interface PaginationInfo {
@@ -56,6 +62,7 @@ export interface FilterState {
   endDate: string;
   status?: string;
   searchQuery?: string;
+  merchantId?: string;
 }
 
 export const DEFAULT_FILTERS: FilterState = {
@@ -65,4 +72,5 @@ export const DEFAULT_FILTERS: FilterState = {
   endDate: '2025-11-18',
   status: undefined,
   searchQuery: undefined,
+  merchantId: undefined,
 };
