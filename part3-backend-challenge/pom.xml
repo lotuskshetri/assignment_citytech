@@ -98,6 +98,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- Security (for Swagger access control) -->
+        <dependency>
+            <groupId>io.micronaut.security</groupId>
+            <artifactId>micronaut-security</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Serialization -->
         <dependency>
             <groupId>io.micronaut.serde</groupId>
