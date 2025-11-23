@@ -2,6 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import { Header } from './components/layout/Header';
 import { Transactions } from './pages/Transactions';
 import { Merchants } from './pages/Merchants';
+import { MerchantDetails } from './pages/MerchantDetails';
+import { AddMerchantForm } from './pages/AddMerchant';
 import { Reports } from './pages/Reports';
 import './App.css';
 
@@ -29,6 +31,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Transactions />} />
         <Route path="/merchants" element={<Merchants />} />
+        <Route path="/merchants/new" element={<AddMerchantForm />} />
+        <Route path="/merchants/:id" element={<MerchantDetails />} />
         <Route path="/reports" element={<Reports />} />
       </Routes>
     </div>

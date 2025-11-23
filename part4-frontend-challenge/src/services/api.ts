@@ -1,12 +1,26 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+// Use relative URL in development (Vite proxy handles forwarding to backend)
+// Use full URL in production
+const isDevelopment = import.meta.env.DEV;
+const API_BASE_URL = isDevelopment
+  ? '/api/v1'
+  : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1');
 const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000');
+
+// Log configuration for debugging
+console.log('=== API Configuration ===');
+console.log('Environment:', isDevelopment ? 'DEVELOPMENT' : 'PRODUCTION');
+console.log('VITE_API_BASE_URL from env:', import.meta.env.VITE_API_BASE_URL);
+console.log('Using API_BASE_URL:', API_BASE_URL);
+console.log('API_TIMEOUT:', API_TIMEOUT);
+console.log('Note: In dev mode, Vite proxy forwards /api to http://localhost:8080');
+console.log('========================');
 
 /**
  * Axios instance with default configuration
  */
-const apiClient: AxiosInstance = axios.create({
+export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
   headers: {
