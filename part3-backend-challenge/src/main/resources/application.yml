@@ -30,6 +30,37 @@ micronaut:
       swagger-ui:
         paths: classpath:META-INF/swagger/views/swagger-ui
         mapping: /swagger-ui/**
+      rapidoc:
+        paths: classpath:META-INF/swagger/views/rapidoc
+        mapping: /rapidoc/**
+      redoc:
+        paths: classpath:META-INF/swagger/views/redoc
+        mapping: /redoc/**
+  security:
+    enabled: false
+    intercept-url-map:
+      - pattern: /swagger/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /swagger-ui/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /rapidoc/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /redoc/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /api/**
+        access:
+          - isAnonymous()
+  openapi:
+    views:
+      spec: rapidoc.enabled=true,swagger-ui.enabled=true,redoc.enabled=true
 
 datasources:
   default:
@@ -45,6 +76,12 @@ datasources:
     validation-timeout: 5000
     idle-timeout: 600000
     max-lifetime: 1800000
+
+# Micronaut Data JDBC Configuration
+data:
+  jdbc:
+    dialect: POSTGRES
+    schema: operators
 
 jpa:
   default:
@@ -84,12 +121,6 @@ logger:
     io.micronaut: INFO
     io.micronaut.data: DEBUG
 
-# OpenAPI Configuration
-micronaut:
-  openapi:
-    enabled: true
-  views:
-    swagger:
-      enabled: true
+# OpenAPI/Swagger Configuration
 swagger-ui:
   enabled: true
