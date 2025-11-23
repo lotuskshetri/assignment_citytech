@@ -28,7 +28,7 @@ interface UseTransactionsResult {
 }
 
 export const useTransactions = (
-  merchantId: string,
+  merchantId: string | null,
   filters: FilterState
 ): UseTransactionsResult => {
   const [data, setData] = useState<UseTransactionsResult['data']>(null);
